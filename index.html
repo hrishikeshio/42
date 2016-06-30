@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Facebook Login JavaScript Example</title>
+<meta charset="UTF-8">
+</head>
+<body>
+<script>
+  // This is called with the results from from FB.getLoginStatus().
+  function statusChangeCallback(response) {
+
+    if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+    console.log('top order',response.authResponse.accessToken);
+    // localStorage.setItem('chimedtoken',response.authResponse.accessToken);
+    testAPI(response);
+    } else if (response.status === 'not_authorized') {
+      // The person is logged into Facebook, but not your app.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into this app.';
+    } else {
+      // The person is not logged into Facebook, so we're not sure if
+      // they are logged into this app or not.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into Facebook.';
+    }
+  }
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response);
+    });
+  }
+  window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '892728537503549',
+    cookie     : true,  // enable cookies to allow the server to access
+                        // the session
+    xfbml      : true,  // parse social plugins on this page
+    version    : 'v2.6' // use graph api version 2.5
+  });
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+  };
+  // Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+  // Here we run a very simple test of the Graph API after login is
+  // successful.  See statusChangeCallback() for when this call is made.
+  function testAPI(info) {
+    console.log('Welcome!  Fetching your information.... ');
+    var requestUrl = "me?fields=id,name,adaccounts{account_status,balance,amount_spent,business_name,business_country_code,account_groups,campaigns{name,objective,spend_cap,effective_status},adcreatives{actor_image_url,body,url_tags},ads{bid_amount,bid_info,bid_type,adset,configured_status,ad_review_feedback},adsets{bid_amount,budget_remaining,campaign_id,configured_status,billing_event,bid_info,daily_budget,adset_schedule,created_time}}"
+    FB.api(requestUrl,{access_token: info.authResponse.accessToken},function(response) {
+      console.log('Successful login for: ' + response.name);
+      console.log(response);
+      // setCookie('result','EAACEdEose0cBALy205caZBSyJe1gH3tkO5ZCiGiX1COJ391vbFZAbUPzBAgzFLdgx95QqcIFEm5qkGDwTRwdTG3Ps2FEtVmhZAxZCxvlWeqI1EnHezTX86Nn1j7SW0BK5SGxNd4rI86RyDQ65RVpUPPDLHoWpWH6fN9O1GjRjTAZDZD',30);
+      // console.log(getCookie('result'));
+      document.getElementById('status').innerHTML =
+        'Thanks for logging in, ' + response.name + '!';
+    });
+  }
+
+  function setCookie(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires="+ d.toUTCString();
+        document.cookie = cname + "=" + cvalue + "; " + expires;
+    }
+
+    function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length,c.length);
+        }
+    }
+    return "";
+}
+</script>
+<!--
+  Below we include the Login Button social plugin. This button uses
+  the JavaScript SDK to present a graphical Login button that triggers
+  the FB.login() function when clicked.
+-->
+<fb:login-button scope="public_profile,email,user_friends,ads_read" auth_type="rerequest" onlogin="checkLoginState();">
+</fb:login-button>
+<div id="status">
+</div>
+</body>
+</html>
